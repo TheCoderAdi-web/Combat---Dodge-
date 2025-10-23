@@ -1,6 +1,7 @@
-"""Importing and Initializing Packages."""
+"""Importing and Initializing Packages/Modules."""
 import pygame
 import sys
+from game_data import Player
 pygame.init()
 
 """Define all Global Variables."""
@@ -12,13 +13,18 @@ class Game():
         self.screen = pygame.display.set_mode(resolution)
         pygame.display.set_caption("Combat & Dodge")
 
-    def run():
+        self.player = Player((30, 30), (515, 415))
+
+    def run(self):
         """Simply run the game, and include all drawing and update functions."""
         running: bool = True
         while running:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     running = False
+
+            self.player.update()
+            self.player.draw(self.screen)
 
         pygame.quit()
         sys.quit()
