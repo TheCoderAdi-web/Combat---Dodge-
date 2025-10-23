@@ -1,19 +1,30 @@
-import pygame as pg
+"""Importing and Initializing Packages."""
+import pygame
 import sys
-pg.init()
+pygame.init()
 
-RESOLUTION: tuple = (400, 500)
+"""Define all Global Variables."""
+RESOLUTION: tuple = (1000, 800)
 
-pg.display.set_mode(RESOLUTION)
-pg.display.set_caption("Combat & Dodge")
+class Game():
+    """Object to contain all of the game elements. Like the main operator class."""
+    def __init__(self, resolution):
+        self.screen = pygame.display.set_mode(resolution)
+        pygame.display.set_caption("Combat & Dodge")
 
-running: bool = True
-while running:
-    for e in pg.event.get():
-        if e.type == pg.QUIT:
-            running = False
+    def run():
+        """Simply run the game, and include all drawing and update functions."""
+        running: bool = True
+        while running:
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    running = False
 
-    pg.display.flip()
+        pygame.quit()
+        sys.quit()
 
-pg.quit()
-sys.exit()
+
+"""Run the game"""
+if __name__ == "__main__":
+    game: Game = Game(RESOLUTION)
+    game.run()
