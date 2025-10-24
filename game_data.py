@@ -1,4 +1,5 @@
 import pygame
+from typing import Optional
 
 class Player():
     def __init__(self, size, pos, color):
@@ -7,11 +8,13 @@ class Player():
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+        self.x_float: float = float(self.rect.x)
+        self.y_float: float = float(self.rect.y)
 
     def update(self, move_speed):
-        dx: int
-        dy: int
-        dx, dy = 0, 0
+        dx: float
+        dy: float
+        dx, dy = 0.0, 0.0
 
         keys = pygame.key.get_pressed()
 
@@ -20,8 +23,11 @@ class Player():
         if keys[pygame.K_UP]: dy -= move_speed
         if keys[pygame.K_DOWN]: dy += move_speed
 
-        self.rect.x += dx
-        self.rect.y += dy
+        self.x_float += dx
+        self.y_float += dy
+
+        self.rect.x = int(self.x_float)
+        self.rect.y = int(self.y_float)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
