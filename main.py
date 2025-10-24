@@ -26,6 +26,22 @@ class Game():
         self.enemy_timer_max = 500
         self.enemy_timer = self.enemy_timer_max
 
+    def draw(self):
+        self.screen.fill("black")
+        self.enemies.draw(self.screen)
+        self.player.draw(self.screen)
+
+    def update(self):
+        self.player.update(0.5)
+        self.enemies.update()
+
+    def spawn_enemies(self):
+        if self.enemy_timer > 0:
+            self.enemy_timer -= 1
+        else:
+            self.enemy_timer = self.enemy_timer_max
+            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1]))))
+
     def run(self):
         """Simply run the game, and include all drawing and update functions."""
         running: bool = True
@@ -34,19 +50,9 @@ class Game():
                 if e.type == pygame.QUIT:
                     running = False
 
-            self.screen.fill("black")
-            
-            self.player.update(0.5)
-            self.player.draw(self.screen)
-
-            self.enemies.update()
-            self.enemies.draw(self.screen)
-
-            if self.enemy_timer > 0:
-                self.enemy_timer -= 1
-            else:
-                self.enemy_timer = self.enemy_timer_max
-                self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1]))))
+            self.draw()
+            self.update()
+            self.spawn_enemies()
 
             pygame.display.flip()
 
