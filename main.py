@@ -32,7 +32,7 @@ class Game():
         self.player.draw(self.screen)
 
     def update(self):
-        self.player.update(0.5)
+        self.player.update(0.8)
         self.enemies.update()
 
     def spawn_enemies(self):
