@@ -13,7 +13,7 @@ class Game():
         self.screen = pygame.display.set_mode(resolution)
         pygame.display.set_caption("Combat & Dodge")
 
-        self.player = Player((30, 30), (515, 415))
+        self.player = Player((30, 30), (515, 415), "red")
 
     def run(self):
         """Simply run the game, and include all drawing and update functions."""
@@ -23,11 +23,15 @@ class Game():
                 if e.type == pygame.QUIT:
                     running = False
 
+            self.screen.fill("black")
+            
             self.player.update()
             self.player.draw(self.screen)
 
+            pygame.display.flip()
+
         pygame.quit()
-        sys.quit()
+        sys.exit()
 
 
 """Run the game"""
