@@ -19,7 +19,7 @@ class Game():
         
         self.clock.tick(FPS)
 
-        self.player = Player((30, 30), (515, 415), "red")
+        self.player = Player((30, 30), (515, 415), "red", self)
 
         self.enemies = pygame.sprite.Group()
 
@@ -32,7 +32,10 @@ class Game():
         self.player.draw(self.screen)
 
     def update(self):
-        self.player.update(0.8)
+        if self.player.update(0.8) == "game_over":
+            pygame.quit()
+            sys.exit()
+            
         self.enemies.update()
 
     def spawn_enemies(self):

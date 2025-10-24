@@ -2,7 +2,7 @@ import pygame
 from typing import Optional
 
 class Player():
-    def __init__(self, size, pos, color):
+    def __init__(self, size, pos, color, game):
         self.image: pygame.surface.Surface = pygame.surface.Surface(size)
         self.image.fill(color)
         self.rect = self.image.get_rect()
@@ -10,8 +10,9 @@ class Player():
         self.rect.y = pos[1]
         self.x_float: float = float(self.rect.x)
         self.y_float: float = float(self.rect.y)
+        self.game = game
 
-    def update(self, move_speed):
+    def update(self, move_speed) -> Optional[str]:
         dx: float
         dy: float
         dx, dy = 0.0, 0.0
@@ -28,6 +29,10 @@ class Player():
 
         self.rect.x = int(self.x_float)
         self.rect.y = int(self.y_float)
+
+        for enemy in self.game.enemies:
+            if self.rect.colliderect(enemy.rect):
+                return "game_over"
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
