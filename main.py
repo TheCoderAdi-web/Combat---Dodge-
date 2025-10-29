@@ -16,8 +16,6 @@ class Game():
         pygame.display.set_caption("Combat & Dodge")
 
         self.clock = pygame.time.Clock()
-        
-        self.clock.tick(FPS)
 
         self.player = Player((30, 30), (515, 415), "red", self)
 
@@ -29,10 +27,11 @@ class Game():
     def draw(self):
         self.screen.fill("black")
         self.enemies.draw(self.screen)
-        self.player.draw(self.screen)
+        self.player.draw()
+        pygame.display.flip()
 
     def update(self):
-        if self.player.update(0.8) == "game_over":
+        if self.player.update(4) == "game_over":
             pygame.quit()
             sys.exit()
             
@@ -57,7 +56,7 @@ class Game():
             self.update()
             self.spawn_enemies()
 
-            pygame.display.flip()
+            self.clock.tick(FPS)
 
         pygame.quit()
         sys.exit()
