@@ -106,7 +106,7 @@ class Player():
             
             for enemy in self.game.enemies:
                 if self.attack_rect != None and self.attack_rect.colliderect(enemy.rect):
-                    enemy.kill()
+                    enemy.health -= 1
 
             if self.attack_timer <= 0:
                 self.attack_rect = None
@@ -174,6 +174,10 @@ class Enemy(pygame.sprite.Sprite):
         # Enemy moves left by 1 pixel each frame
         dx: int = self.move_speed
         self.rect.x += dx
+
+        # Check for the enemies health
+        if self.health <= 0:
+            self.kill()
 
         # Check if the enemy is entirely off the left side of the screen
         if self.rect.right < 0:
