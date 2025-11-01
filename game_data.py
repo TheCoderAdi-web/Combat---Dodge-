@@ -7,6 +7,16 @@ from typing import Optional
 RESOLUTION: tuple = (1000, 800)
 FPS = 60
 
+"""
+A Dictionary for the properties of Each Enemy Type.
+Format: Name: (Speed, Health, Size, Colour)
+"""
+ENEMY_TYPE_PROPERTIES = {
+    "Normal": (4, 2, 64, "blue"),
+    "Speedster": (8, 1, 32, "red"),
+    "Giant": (2, 4, 128, "yellow")
+}
+
 class Game():
     """Object to contain all of the game elements. Like the main operator class."""
     def __init__(self):
@@ -15,12 +25,12 @@ class Game():
 
         self.clock = pygame.time.Clock()
 
-        self.player = Player((64, 64), (515, 415), "red", self)
+        self.player: Player = Player((64, 64), (515, 415), "red", self)
 
-        self.enemies = pygame.sprite.Group()
+        self.enemies: pygame.sprite.Group = pygame.sprite.Group()
 
-        self.enemy_timer_max = 200
-        self.enemy_timer = self.enemy_timer_max
+        self.enemy_timer_max: int = 200
+        self.enemy_timer: int = self.enemy_timer_max
 
     def draw(self):
         self.screen.fill("black")
@@ -40,7 +50,7 @@ class Game():
             self.enemy_timer -= 1
         else:
             self.enemy_timer = self.enemy_timer_max
-            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1]))))
+            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), "Normal"))
 
     def run(self):
         """Simply run the game, and include all drawing and update functions."""
@@ -61,7 +71,7 @@ class Game():
 
 class Player():
     """Player class"""
-    def __init__(self, size, pos, color, game):
+    def __init__(self, size: tuple[int, int], pos: tuple[int, int], color: str, game):
         self.image: pygame.surface.Surface = pygame.surface.Surface(size)
         self.image.fill(color)
         self.rect = self.image.get_rect()
@@ -81,7 +91,7 @@ class Player():
         self.attack_rect = pygame.Rect(0, 0, self.attack_rect_size[0], self.attack_rect_size[1])
         self.attack_rect.left = self.rect.right + 2
         self.attack_rect.centery = self.rect.centery
-        self.attack_timer: int = self.attack_timer_max
+        self.attack_timer = self.attack_timer_max
         self.attacked = True
 
     def update(self, move_speed) -> Optional[str]:
@@ -140,11 +150,17 @@ class Enemy(pygame.sprite.Sprite):
     using a Pygame Sprite Group called enemies in
     the Game class, defined in main.py.
     """
-    def __init__(self, pos):
-        super().__init__() 
+    def __init__(self, pos: tuple[int, int], type: str):
+        super().__init__()
+
+        self.type: str = type
+        self.move_speed: int = ENEMY_TYPE_PROPERTIES[self.type][0]
+        self.health: int = ENEMY_TYPE_PROPERTIES[self.type][1]
+        self.size: int = ENEMY_TYPE_PROPERTIES[self.type][2]
+        self.colour: str = ENEMY_TYPE_PROPERTIES[self.type][3]
         
-        self.image: pygame.surface.Surface = pygame.surface.Surface((64, 64))
-        self.image.fill("blue")
+        self.image: pygame.surface.Surface = pygame.surface.Surface((self.size, self.size))
+        self.image.fill(self.colour)
         
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
@@ -156,7 +172,7 @@ class Enemy(pygame.sprite.Sprite):
         goes off screen.
         """
         # Enemy moves left by 1 pixel each frame
-        dx: int = -4 
+        dx: int = self.move_speed
         self.rect.x += dx
 
         # Check if the enemy is entirely off the left side of the screen
