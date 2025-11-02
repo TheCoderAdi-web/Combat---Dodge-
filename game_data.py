@@ -173,7 +173,7 @@ class Enemy(pygame.sprite.Sprite):
         """
         # Enemy moves left by 1 pixel each frame
         dx: int = self.move_speed
-        self.rect.x += dx
+        self.rect.x -= dx
 
         # Check for the enemies health
         if self.health <= 0:
