@@ -12,9 +12,9 @@ A Dictionary for the properties of Each Enemy Type.
 Format: Name: (Speed, Health, Image Path for Loading)
 """
 ENEMY_TYPE_PROPERTIES = {
-    "Normal": (4, 2, "images/enemies/normal.png"),
-    "Speedster": (6, 1, "images/enemies/speedster.png"),
-    "Giant": (2, 4, "images/enemies/giant.png")
+    "Normal": (0.75, 2, "images/enemies/normal.png"),
+    "Speedster": (1.0, 1, "images/enemies/speedster.png"),
+    "Giant": (0.25, 4, "images/enemies/giant.png")
 }
 
 class Game():
@@ -158,7 +158,8 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__()
 
         self.type: str = type
-        self.move_speed: int = ENEMY_TYPE_PROPERTIES[self.type][0]
+        self.move_speed: float = ENEMY_TYPE_PROPERTIES[self.type][0]
+        self.speed_cap: float = self.move_speed * 7
         self.health: int = ENEMY_TYPE_PROPERTIES[self.type][1]
         self.image: pygame.surface.Surface = pygame.image.load(ENEMY_TYPE_PROPERTIES[self.type][2]).convert_alpha()
         
@@ -166,13 +167,18 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
+        self.current_speed = 0
+
     def update(self):
         """
         Updating the enemy's position and killing it once it
         goes off screen.
         """
-        # Enemy moves left by 1 pixel each frame
-        dx: int = self.move_speed
+        # Enemy's accelaration starts slow, then gains speed till the speed cap
+        dx: float = 0.0
+        if self.current_speed < self.speed_cap:
+            self.current_speed += self.move_speed
+        dx = self.current_speed
         self.rect.x -= dx
 
         # Check for the enemies health
