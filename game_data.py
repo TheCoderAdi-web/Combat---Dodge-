@@ -12,9 +12,9 @@ A Dictionary for the properties of Each Enemy Type.
 Format: Name: (Speed, Health, Size, Colour)
 """
 ENEMY_TYPE_PROPERTIES = {
-    "Normal": (4, 2, 64, "blue"),
-    "Speedster": (6, 1, 32, "red"),
-    "Giant": (2, 4, 128, "yellow")
+    "Normal": (4, 2, "normal.png"),
+    "Speedster": (6, 1, "speedster.png"),
+    "Giant": (2, 4, "giant.png")
 }
 
 class Game():
@@ -25,7 +25,7 @@ class Game():
 
         self.clock: pygame.time.Clock = pygame.time.Clock()
 
-        self.player: Player = Player((64, 64), (515, 415), "red", self)
+        self.player: Player = Player((515, 415), self)
 
         self.enemies: pygame.sprite.Group = pygame.sprite.Group()
 
@@ -73,9 +73,8 @@ class Game():
 
 class Player():
     """Player class"""
-    def __init__(self, size: tuple[int, int], pos: tuple[int, int], color: str, game):
-        self.image: pygame.surface.Surface = pygame.surface.Surface(size)
-        self.image.fill(color)
+    def __init__(self, pos: tuple[int, int], game: Game):
+        self.image: pygame.surface.Surface = pygame.image.load("player.png").convert_alpha()
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -83,7 +82,7 @@ class Player():
         self.y_float: float = float(self.rect.y)
         self.game = game
         self.attack_rect: Optional[pygame.Rect] = None
-        self.attack_rect_size: tuple = (50, 30)
+        self.attack_rect_size: tuple = (50, 20)
         self.attack_timer_max: int = 30
         self.attack_timer: int = self.attack_timer_max
         self.attacked: bool = False
@@ -161,11 +160,7 @@ class Enemy(pygame.sprite.Sprite):
         self.type: str = type
         self.move_speed: int = ENEMY_TYPE_PROPERTIES[self.type][0]
         self.health: int = ENEMY_TYPE_PROPERTIES[self.type][1]
-        self.size: int = ENEMY_TYPE_PROPERTIES[self.type][2]
-        self.colour: str = ENEMY_TYPE_PROPERTIES[self.type][3]
-        
-        self.image: pygame.surface.Surface = pygame.surface.Surface((self.size, self.size))
-        self.image.fill(self.colour)
+        self.image: pygame.surface.Surface = pygame.image.load(ENEMY_TYPE_PROPERTIES[self.type][2]).convert_alpha()
         
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
