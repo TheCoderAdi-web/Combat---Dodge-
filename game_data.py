@@ -1,6 +1,6 @@
 import pygame
 import sys
-from random import randrange
+from random import randrange, choice
 from typing import Optional
 
 """Define all Global Variables."""
@@ -49,8 +49,10 @@ class Game():
         if self.enemy_timer > 0:
             self.enemy_timer -= 1
         else:
+            enemy_type_names: list[str] = list(ENEMY_TYPE_PROPERTIES.keys())
+            enemy_type: str = choice(enemy_type_names)
             self.enemy_timer = self.enemy_timer_max
-            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), "Normal"))
+            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), enemy_type))
 
     def run(self):
         """Simply run the game, and include all drawing and update functions."""
