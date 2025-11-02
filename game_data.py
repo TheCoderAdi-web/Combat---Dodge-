@@ -83,7 +83,7 @@ class Player():
         self.game = game
         self.attack_rect: Optional[pygame.Rect] = None
         self.attack_rect_size: tuple = (50, 20)
-        self.attack_timer_max: int = 30
+        self.attack_timer_max: int = 15
         self.attack_timer: int = self.attack_timer_max
         self.attacked: bool = False
 
