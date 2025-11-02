@@ -18,10 +18,17 @@ ENEMY_TYPE_PROPERTIES = {
 }
 
 class Game():
-    """Object to contain all of the game elements. Like the main operator class."""
+    """
+    Object to contain all of the game elements. Like the manager of the game.
+    """
     def __init__(self):
         self.screen = pygame.display.set_mode(RESOLUTION)
         pygame.display.set_caption("Combat & Dodge")
+
+        self.game_surface: pygame.surface.Surface = pygame.surface.Surface(RESOLUTION)
+
+        self.shake_timer: int = 0
+        self.shake_intensity: int = 0
 
         self.clock: pygame.time.Clock = pygame.time.Clock()
 
@@ -32,10 +39,30 @@ class Game():
         self.enemy_timer_max: int = 200
         self.enemy_timer: int = self.enemy_timer_max
 
+    def trigger_shake(self, duration: int, intensity: int):
+        """Starts the screen shake."""
+        self.shake_timer = duration
+        self.shake_intensity = intensity
+
     def draw(self):
-        self.screen.fill("black")
-        self.enemies.draw(self.screen)
+        self.game_surface.fill("black")
+
+        self.enemies.draw(self.game_surface)
         self.player.draw()
+
+        draw_offset: tuple[int, int] = (0, 0)
+
+        if self.shake_timer > 0:
+            self.shake_timer -= 1
+
+            offset_x = randrange(-self.shake_intensity, self.shake_intensity + 1)
+            offset_y = randrange(-self.shake_intensity, self.shake_intensity + 1)
+            draw_offset = (offset_x, offset_y)
+
+        self.screen.fill("black")
+
+        self.screen.blit(self.game_surface, draw_offset)
+
         pygame.display.flip()
 
     def update(self):
@@ -46,13 +73,16 @@ class Game():
         self.enemies.update()
 
     def spawn_enemies(self):
+        """
+        Spawn enemies by randomly picking a type of enemy, and then spawning the enemy.
+        """
         if self.enemy_timer > 0:
             self.enemy_timer -= 1
         else:
             enemy_type_names: list[str] = list(ENEMY_TYPE_PROPERTIES.keys())
             enemy_type: str = choice(enemy_type_names)
             self.enemy_timer = self.enemy_timer_max
-            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), enemy_type))
+            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), "Normal"))
 
     def run(self):
         """Simply run the game, and include all drawing and update functions."""
@@ -108,6 +138,9 @@ class Player():
             if self.attack_rect != None:
                 for enemy in self.game.enemies:
                     if self.attack_rect.colliderect(enemy.rect):
+                        self.game.trigger_shake(25, 4)
+                        enemy.current_speed -= enemy.current_speed * 3
+                        enemy.hit_timer = enemy.hit_timer_max
                         enemy.health -= 1
                         self.attack_rect = None
                         break
@@ -138,14 +171,15 @@ class Player():
         # a game_over message if the collision is succesful.
         for enemy in self.game.enemies:
             if self.rect.colliderect(enemy.rect):
+                self.game.trigger_shake(25, 8)
                 return "game_over"
 
     def draw(self):
         """Drawing the player, and optionally drawing the attack_rect"""
-        self.game.screen.blit(self.image, self.rect)
+        self.game.game_surface.blit(self.image, self.rect)
 
         # Draw the Attack Rect (For Debugging)
-        if self.attack_rect != None: pygame.draw.rect(surface=self.game.screen, color="green", rect=self.attack_rect)
+        if self.attack_rect != None: pygame.draw.rect(surface=self.game.game_surface, color="green", rect=self.attack_rect)
 
 class Enemy(pygame.sprite.Sprite):
     """
@@ -159,16 +193,33 @@ class Enemy(pygame.sprite.Sprite):
 
         self.type: str = type
         self.move_speed: float = ENEMY_TYPE_PROPERTIES[self.type][0]
-        self.speed_cap: float = self.move_speed * 7
+        self.speed_cap: float = self.move_speed * 8
+        self.current_speed: float = 0.0
         self.health: int = ENEMY_TYPE_PROPERTIES[self.type][1]
-        self.image: pygame.surface.Surface = pygame.image.load(ENEMY_TYPE_PROPERTIES[self.type][2]).convert_alpha()
+        
+        # --- Master images (never modified) ---
+        self.master_image: pygame.surface.Surface = pygame.image.load(ENEMY_TYPE_PROPERTIES[self.type][2]).convert_alpha()
+        self.master_hit_image: pygame.surface.Surface = self.master_image.copy()
+        self.master_hit_image.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
+        
+        # --- Current image (overwritten each frame) ---
+        self.image: pygame.surface.Surface = self.master_image.copy()
+        self.angle: float = 0.0
         
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
-        self.current_speed = 0
+        self.hit_timer_max: int = 20
+        self.hit_timer: int = 0
 
+    def die(self):
+        """
+        Still do the hit frames, and immediately after they end, kill the enemy sprite for a smooth death.
+        """
+        if self.hit_timer == 0:
+            self.kill()
+    
     def update(self):
         """
         Updating the enemy's position and killing it once it
@@ -181,10 +232,33 @@ class Enemy(pygame.sprite.Sprite):
         dx = self.current_speed
         self.rect.x -= dx
 
-        # Check for the enemies health
+        # --- Rotation and Image Update Logic ---
+        old_center = self.rect.center
+
+        # Rotate the enemy if it is an asteriod
+        if self.type == "Normal":
+            self.angle = (self.angle - 5) % 360
+            rotated_origin = pygame.transform.rotate(self.master_image, self.angle)
+            rotated_hit = pygame.transform.rotate(self.master_hit_image, self.angle)
+        else:
+            # If not "Normal", just use the un-rotated master images
+            rotated_origin = self.master_image
+            rotated_hit = self.master_hit_image
+
+        # Check for the enemy's health and take damage when it's hit by the player
+        if self.hit_timer > 0:
+            self.hit_timer -= 1
+            self.image = rotated_hit
+        else:
+            self.image = rotated_origin
+        
+        # Update the rect with the new image and restore its center
+        self.rect = self.image.get_rect(center=old_center)
+        # --- End of Rotation Logic ---
+
         if self.health <= 0:
-            self.kill()
+            self.die()
 
         # Check if the enemy is entirely off the left side of the screen
         if self.rect.right < 0:
-            self.kill()
+            self.die()
