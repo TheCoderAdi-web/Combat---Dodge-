@@ -13,7 +13,7 @@ Format: Name: (Speed, Health, Size, Colour)
 """
 ENEMY_TYPE_PROPERTIES = {
     "Normal": (4, 2, 64, "blue"),
-    "Speedster": (8, 1, 32, "red"),
+    "Speedster": (6, 1, 32, "red"),
     "Giant": (2, 4, 128, "yellow")
 }
 
