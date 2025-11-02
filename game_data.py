@@ -9,12 +9,12 @@ FPS: int = 60
 
 """
 A Dictionary for the properties of Each Enemy Type.
-Format: Name: (Speed, Health, Size, Colour)
+Format: Name: (Speed, Health, Image Path for Loading)
 """
 ENEMY_TYPE_PROPERTIES = {
-    "Normal": (4, 2, "normal.png"),
-    "Speedster": (6, 1, "speedster.png"),
-    "Giant": (2, 4, "giant.png")
+    "Normal": (4, 2, "images/enemies/normal.png"),
+    "Speedster": (6, 1, "images/enemies/speedster.png"),
+    "Giant": (2, 4, "images/enemies/giant.png")
 }
 
 class Game():
@@ -74,7 +74,7 @@ class Game():
 class Player():
     """Player class"""
     def __init__(self, pos: tuple[int, int], game: Game):
-        self.image: pygame.surface.Surface = pygame.image.load("player.png").convert_alpha()
+        self.image: pygame.surface.Surface = pygame.image.load("images/player.png").convert_alpha()
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
