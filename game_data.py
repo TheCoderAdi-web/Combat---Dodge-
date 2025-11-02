@@ -5,7 +5,7 @@ from typing import Optional
 
 """Define all Global Variables."""
 RESOLUTION: tuple = (1000, 800)
-FPS = 60
+FPS: int = 60
 
 """
 A Dictionary for the properties of Each Enemy Type.
@@ -23,7 +23,7 @@ class Game():
         self.screen = pygame.display.set_mode(RESOLUTION)
         pygame.display.set_caption("Combat & Dodge")
 
-        self.clock = pygame.time.Clock()
+        self.clock: pygame.time.Clock = pygame.time.Clock()
 
         self.player: Player = Player((64, 64), (515, 415), "red", self)
 
@@ -76,7 +76,7 @@ class Player():
     def __init__(self, size: tuple[int, int], pos: tuple[int, int], color: str, game):
         self.image: pygame.surface.Surface = pygame.surface.Surface(size)
         self.image.fill(color)
-        self.rect = self.image.get_rect()
+        self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.x_float: float = float(self.rect.x)
@@ -96,7 +96,7 @@ class Player():
         self.attack_timer = self.attack_timer_max
         self.attacked = True
 
-    def update(self, move_speed) -> Optional[str]:
+    def update(self, move_speed: int) -> Optional[str]:
         """Handle movement, attacking, and collisions"""
         dx: float
         dy: float
@@ -105,16 +105,19 @@ class Player():
         # Player attacking logic
         if self.attacked:
             self.attack_timer -= 1 
-            
-            for enemy in self.game.enemies:
-                if self.attack_rect != None and self.attack_rect.colliderect(enemy.rect):
-                    enemy.health -= 1
+
+            if self.attack_rect != None:
+                for enemy in self.game.enemies:
+                    if self.attack_rect.colliderect(enemy.rect):
+                        enemy.health -= 1
+                        self.attack_rect = None
+                        break
 
             if self.attack_timer <= 0:
                 self.attack_rect = None
                 self.attacked = False
 
-        keys = pygame.key.get_pressed()
+        keys: tuple[int, ...] = pygame.key.get_pressed()
 
         if keys[pygame.K_SPACE] and not self.attacked:
             self.init_attack()
@@ -164,7 +167,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image: pygame.surface.Surface = pygame.surface.Surface((self.size, self.size))
         self.image.fill(self.colour)
         
-        self.rect = self.image.get_rect()
+        self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
