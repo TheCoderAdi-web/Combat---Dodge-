@@ -4,7 +4,7 @@ from random import randrange, choice
 from typing import Optional
 
 """Define all Global Variables."""
-RESOLUTION: tuple = (800, 600)
+RESOLUTION: tuple = (1000, 800)
 FPS: int = 60
 
 """
@@ -119,6 +119,7 @@ class Player():
         self.hit_image: pygame.surface.Surface = self.master_image.copy()
         self.hit_image.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
         self.image: pygame.surface.Surface = self.master_image.copy()
+        self.attack_image: pygame.surface.Surface = pygame.image.load("images/player_attack.png").convert_alpha()
         
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
@@ -168,6 +169,7 @@ class Player():
             self.y_float += self.dy
             self.rect.x = int(self.x_float)
             self.rect.y = int(self.y_float)
+            self.attack_rect = None
             return None
         
         if self.attacked:
@@ -222,7 +224,7 @@ class Player():
         self.game.game_surface.blit(image_to_draw, self.rect)
 
         if self.attack_rect != None: 
-            pygame.draw.rect(surface=self.game.game_surface, color="green", rect=self.attack_rect)
+            self.game.game_surface.blit(self.attack_image, self.attack_rect)
 
 class Enemy(pygame.sprite.Sprite):
     """
