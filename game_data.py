@@ -27,7 +27,7 @@ class Game():
 
         self.game_surface: pygame.surface.Surface = pygame.surface.Surface(RESOLUTION)
 
-        self.font: pygame.font.Font = pygame.font.Font("SuperAdorable-MAvyp.ttf", 36)
+        self.font: pygame.font.Font = pygame.font.Font("images/fonts/SuperAdorable-MAvyp.ttf", 36)
 
         self.shake_timer: int = 0
         self.shake_intensity: int = 0
@@ -122,11 +122,11 @@ class Game():
 class Player():
     """Player class"""
     def __init__(self, pos: tuple[int, int], game: Game) -> None:
-        self.master_image: pygame.surface.Surface = pygame.image.load("images/player.png").convert_alpha()
+        self.master_image: pygame.surface.Surface = pygame.image.load("images/player/player.png").convert_alpha()
         self.hit_image: pygame.surface.Surface = self.master_image.copy()
         self.hit_image.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
         self.image: pygame.surface.Surface = self.master_image.copy()
-        self.attack_image: pygame.surface.Surface = pygame.image.load("images/player_attack.png").convert_alpha()
+        self.attack_image: pygame.surface.Surface = pygame.image.load("images/player/player_attack.png").convert_alpha()
         
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
