@@ -27,6 +27,8 @@ class Game():
 
         self.game_surface: pygame.surface.Surface = pygame.surface.Surface(RESOLUTION)
 
+        self.font: pygame.font.Font = pygame.font.Font("SuperAdorable-MAvyp.ttf", 36)
+
         self.shake_timer: int = 0
         self.shake_intensity: int = 0
 
@@ -40,6 +42,8 @@ class Game():
         self.enemy_timer: int = self.enemy_timer_max
         
         self.game_state: str = "running"
+
+        self.score = 0
 
     def trigger_shake(self, duration: int, intensity: int) -> None:
         """Starts the screen shake."""
@@ -60,6 +64,9 @@ class Game():
             offset_x: int = randrange(-self.shake_intensity, self.shake_intensity + 1)
             offset_y: int = randrange(-self.shake_intensity, self.shake_intensity + 1)
             draw_offset = (offset_x, offset_y)
+
+        score_text: pygame.surface.Surface = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        self.game_surface.blit(score_text, (20, 20))
 
         self.screen.fill("black")
 
@@ -94,7 +101,7 @@ class Game():
             enemy_type_names: list[str] = list(ENEMY_TYPE_PROPERTIES.keys())
             enemy_type: str = choice(enemy_type_names)
             self.enemy_timer = self.enemy_timer_max
-            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), enemy_type))
+            self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), enemy_type, self))
 
     def run(self) -> None:
         """Simply run the game, and include all drawing and update functions."""
@@ -233,8 +240,10 @@ class Enemy(pygame.sprite.Sprite):
     using a Pygame Sprite Group called enemies in
     the Game class, defined in main.py.
     """
-    def __init__(self, pos: tuple[int, int], type: str) -> None:
+    def __init__(self, pos: tuple[int, int], type: str, game: Game) -> None:
         super().__init__()
+
+        self.game = game
 
         self.type: str = type
         self.move_speed: float = ENEMY_TYPE_PROPERTIES[self.type][0]
@@ -264,6 +273,12 @@ class Enemy(pygame.sprite.Sprite):
         """
         if self.hit_timer == 0:
             self.kill()
+            if self.type == "Normal":
+                self.game.score += 1
+            elif self.type == "Speedster":
+                self.game.score += 2
+            elif self.type == "Giant":
+                self.game.score += 4
     
     def update(self) -> None:
         """
