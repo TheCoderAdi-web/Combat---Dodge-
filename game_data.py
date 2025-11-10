@@ -268,6 +268,8 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
+        self.mask = pygame.mask.from_surface(self.master_image)
+
         self.hit_timer_max: int = 20
         self.hit_timer: int = 0
 
