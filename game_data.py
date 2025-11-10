@@ -127,6 +127,8 @@ class Player():
         self.hit_image.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
         self.image: pygame.surface.Surface = self.master_image.copy()
         self.attack_image: pygame.surface.Surface = pygame.image.load("images/player/player_attack.png").convert_alpha()
+    
+        self.mask = pygame.mask.from_surface(self.image)
         
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
@@ -215,12 +217,14 @@ class Player():
         self.rect.y = int(self.y_float)
 
         for enemy in self.game.enemies:
-            if self.rect.colliderect(enemy.rect):
+            offset = (enemy.rect.x - self.rect.x, enemy.rect.y - self.rect.y)
+            if self.mask.overlap(enemy.mask, offset):
                 enemy.kill()
                 self.death_timer = self.death_timer_max
                 self.dx = -100
                 self.is_alive = False
                 return "game_over"
+
 
     def draw(self) -> None:
         """Drawing the player, and optionally drawing the attack_rect"""
