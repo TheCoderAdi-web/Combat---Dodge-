@@ -44,6 +44,7 @@ class Game():
         self.game_state: str = "running"
 
         self.score = 0
+        self.lives = 5
 
     def trigger_shake(self, duration: int, intensity: int) -> None:
         """Starts the screen shake."""
@@ -66,7 +67,9 @@ class Game():
             draw_offset = (offset_x, offset_y)
 
         score_text: pygame.surface.Surface = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        lives_text: pygame.surface.Surface = self.font.render(f"Lives: {self.lives}", True, (255, 255, 255))
         self.game_surface.blit(score_text, (20, 20))
+        self.game_surface.blit(lives_text, (RESOLUTION[0] - 180, 20))
 
         self.screen.fill("black")
 
@@ -85,9 +88,9 @@ class Game():
             
         elif self.game_state == "game_over":
             self.enemies.update()
-            self.player.death_animation()
+            self.player.check_hit_and_hit_animation()
             
-            if self.player.death_timer <= 0:
+            if self.player.hit_timer <= 0:
                 pygame.quit()
                 sys.exit()
 
@@ -145,9 +148,9 @@ class Player():
         self.dy: float
         self.dx, self.dy = 0.0, 0.0
         
-        self.is_alive: bool = True
-        self.death_timer: int = 0
-        self.death_timer_max: int = 25
+        self.is_hit: bool = False
+        self.hit_timer: int = 0
+        self.hit_timer_max: int = 20
 
     def init_attack(self) -> None:
         """Initialize the attack_rect object when Attacking"""
@@ -157,29 +160,32 @@ class Player():
         self.attack_timer = self.attack_timer_max
         self.attacked = True
 
-    def death_animation(self) -> None:
+    def check_hit_and_hit_animation(self) -> None:
         """
         Main Death Animation logic:
         1. Turning the Player image white to show damage
         2. Shaking the Screen
         3. When the Death Animation is over, Quit the game
         """
-        if self.death_timer > 0:
-            self.death_timer -= 0.5
-        
-        self.game.trigger_shake(2, 8)
+        if self.hit_timer > 0:
+            self.hit_timer -= 0.5
+            self.game.trigger_shake(2, 8)
 
     def update(self, move_speed: int) -> Optional[str]:
         """Handle movement, attacking, and collisions"""
-        if not self.is_alive:
-            self.dx *= 0.65
-            self.dy *= 0.65
-            self.x_float += self.dx
-            self.y_float += self.dy
-            self.rect.x = int(self.x_float)
-            self.rect.y = int(self.y_float)
-            self.attack_rect = None
-            return None
+        if not self.is_hit:
+            keys: tuple[int, ...] = pygame.key.get_pressed()
+            if keys[pygame.K_RIGHT]: self.dx += move_speed
+            if keys[pygame.K_LEFT]: self.dx -= move_speed
+            if keys[pygame.K_UP]: self.dy -= move_speed
+            if keys[pygame.K_DOWN]: self.dy += move_speed
+            if keys[pygame.K_SPACE] and not self.attacked:
+                self.init_attack()
+        
+        if self.hit_timer <= 0:
+            self.is_hit = False
+
+        self.check_hit_and_hit_animation()
         
         if self.attacked:
             self.attack_timer -= 1 
@@ -197,15 +203,6 @@ class Player():
             if self.attack_timer <= 0:
                 self.attack_rect = None
                 self.attacked = False
-
-        keys: tuple[int, ...] = pygame.key.get_pressed()
-
-        if keys[pygame.K_RIGHT]: self.dx += move_speed
-        if keys[pygame.K_LEFT]: self.dx -= move_speed
-        if keys[pygame.K_UP]: self.dy -= move_speed
-        if keys[pygame.K_DOWN]: self.dy += move_speed
-        if keys[pygame.K_SPACE] and not self.attacked:
-            self.init_attack()
         
         self.dx *= 0.65
         self.dy *= 0.65
@@ -220,16 +217,18 @@ class Player():
             offset = (enemy.rect.x - self.rect.x, enemy.rect.y - self.rect.y)
             if self.mask.overlap(enemy.mask, offset):
                 enemy.kill()
-                self.death_timer = self.death_timer_max
-                self.dx = -100
-                self.is_alive = False
-                return "game_over"
+                self.is_hit = True
+                self.game.lives -= 1
+                self.hit_timer = self.hit_timer_max
+                self.dx = -50
+                if self.game.lives <= 0:
+                    return "game_over"
 
 
     def draw(self) -> None:
         """Drawing the player, and optionally drawing the attack_rect"""
         image_to_draw = self.master_image
-        if not self.is_alive:
+        if self.is_hit:
             image_to_draw = self.hit_image
         
         self.game.game_surface.blit(image_to_draw, self.rect)
@@ -328,3 +327,5 @@ class Enemy(pygame.sprite.Sprite):
         # Check if the enemy is entirely off the left side of the screen
         if self.rect.right < 0:
             self.kill()
+            self.game.lives -= 1
+            self.game.trigger_shake(10, 5)
