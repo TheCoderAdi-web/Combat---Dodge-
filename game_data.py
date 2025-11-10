@@ -216,7 +216,7 @@ class Player():
 
         for enemy in self.game.enemies:
             if self.rect.colliderect(enemy.rect):
-                enemy.health -= 9999
+                enemy.kill()
                 self.death_timer = self.death_timer_max
                 self.dx = -100
                 self.is_alive = False
