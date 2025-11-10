@@ -327,4 +327,4 @@ class Enemy(pygame.sprite.Sprite):
 
         # Check if the enemy is entirely off the left side of the screen
         if self.rect.right < 0:
-            self.die()
+            self.kill()
