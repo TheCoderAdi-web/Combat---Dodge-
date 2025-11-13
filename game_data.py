@@ -132,6 +132,7 @@ class Player():
         self.attack_image: pygame.surface.Surface = pygame.image.load("images/player/player_attack.png").convert_alpha()
     
         self.mask = pygame.mask.from_surface(self.image)
+        self.attack_mask = pygame.mask.from_surface(self.attack_image)
         
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.x = pos[0]
@@ -190,9 +191,10 @@ class Player():
         if self.attacked:
             self.attack_timer -= 1 
 
-            if self.attack_rect != None:
+            if self.attack_rect:
                 for enemy in self.game.enemies:
-                    if self.attack_rect.colliderect(enemy.rect):
+                    offset = (enemy.rect.x - self.attack_rect.x, enemy.rect.y - self.attack_rect.y)
+                    if self.attack_mask.overlap(enemy.mask, offset):
                         self.game.trigger_shake(25, 4)
                         enemy.current_speed -= enemy.current_speed * 3
                         enemy.hit_timer = enemy.hit_timer_max
