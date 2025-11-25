@@ -150,8 +150,8 @@ class Player():
         self.dx, self.dy = 0.0, 0.0
         
         self.is_hit: bool = False
-        self.hit_timer: int = 0
-        self.hit_timer_max: int = 20
+        self.hit_timer: float = 0.0
+        self.hit_timer_max: float = 20.0
 
     def init_attack(self) -> None:
         """Initialize the attack_rect object when Attacking"""
