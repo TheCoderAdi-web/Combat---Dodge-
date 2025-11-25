@@ -19,7 +19,9 @@ ENEMY_TYPE_PROPERTIES: dict[str, tuple[float, int, str]] = {
 
 class Game():
     """
-    Object to contain all of the game elements. Like the manager of the game.
+    Docstring for Game
+    
+    :var logic: An object that contains all game logic, including player, enemies, drawing, updating, etc.
     """
     def __init__(self) -> None:
         self.screen: pygame.surface.Surface = pygame.display.set_mode(RESOLUTION)
@@ -47,11 +49,24 @@ class Game():
         self.lives = 5
 
     def trigger_shake(self, duration: int, intensity: int) -> None:
-        """Starts the screen shake."""
+        """
+        Docstring for trigger_shake
+        
+        :param self: Triggers a screen shake effect for a specified duration and intensity.
+        :param duration: The duration of the screen shake effect in frames.
+        :type duration: int
+        :param intensity: The intensity of the screen shake effect.
+        :type intensity: int
+        """
         self.shake_timer = duration
         self.shake_intensity = intensity
 
     def draw(self) -> None:
+        """
+        Docstring for draw
+        
+        :param self: A function for drawing the player, enemies, score, and lives on the game surface.
+        """
         self.game_surface.fill("black")
 
         self.enemies.draw(self.game_surface)
@@ -78,7 +93,11 @@ class Game():
         pygame.display.flip()
 
     def update(self) -> None:
-        """End the game the moment the player loses"""
+        """
+        Docstring for update
+        
+        :param self: Updates the game state, player, enemies, and handles game over conditions.
+        """
         if self.game_state == "running":
             if self.player.update(4) == "game_over":
                 self.game_state = "game_over"
@@ -96,7 +115,9 @@ class Game():
 
     def spawn_enemies(self) -> None:
         """
-        Spawn enemies by randomly picking a type of enemy, and then spawning the enemy.
+        Docstring for spawn_enemies
+        
+        :param self: A function that spawns enemies at random intervals and positions.
         """
         if self.enemy_timer > 0:
             self.enemy_timer -= 1
@@ -107,7 +128,11 @@ class Game():
             self.enemies.add(Enemy((RESOLUTION[0], randrange(0, RESOLUTION[1])), enemy_type, self))
 
     def run(self) -> None:
-        """Simply run the game, and include all drawing and update functions."""
+        """
+        Docstring for run
+        
+        :param self: A function of the Game class that runs the main game loop.
+        """
         running: bool = True
         while running:
             for e in pygame.event.get():
@@ -123,7 +148,11 @@ class Game():
         sys.exit()
 
 class Player():
-    """Player class"""
+    """
+    Docstring for Player
+    
+    :var logic: A player class that handles movement, attacking, and collisions.
+    """
     def __init__(self, pos: tuple[int, int], game: Game) -> None:
         self.master_image: pygame.surface.Surface = pygame.image.load("images/player/player.png").convert_alpha()
         self.hit_image: pygame.surface.Surface = self.master_image.copy()
@@ -154,7 +183,11 @@ class Player():
         self.hit_timer_max: float = 20.0
 
     def init_attack(self) -> None:
-        """Initialize the attack_rect object when Attacking"""
+        """
+        Docstring for init_attack
+        
+        :param self: Intializes the player's attack by creating an attack rectangle in front of the player.
+        """
         self.attack_rect = pygame.Rect(0, 0, self.attack_rect_size[0], self.attack_rect_size[1])
         self.attack_rect.left = self.rect.right + 2
         self.attack_rect.centery = self.rect.centery
@@ -163,7 +196,9 @@ class Player():
 
     def check_hit_and_hit_animation(self) -> None:
         """
-        Main Death Animation logic:
+        Docstring for check_hit_and_hit_animation
+        
+        :param self: Main Death Animation logic:
         1. Turning the Player image white to show damage
         2. Shaking the Screen
         3. When the Death Animation is over, Quit the game
@@ -173,7 +208,15 @@ class Player():
             self.game.trigger_shake(2, 8)
 
     def update(self, move_speed: int) -> Optional[str]:
-        """Handle movement, attacking, and collisions"""
+        """
+        Docstring for update
+        
+        :param self: A function that updates the player's position, attack state, and collision detection.
+        :param move_speed: A variable that determines how fast the player moves.
+        :type move_speed: int
+        :return: Can return "game_over" if the player loses all lives. Otherwise, returns None.
+        :rtype: str | None
+        """
         if not self.is_hit:
             keys: tuple[int, ...] = pygame.key.get_pressed()
             if keys[pygame.K_RIGHT]: self.dx += move_speed
@@ -228,7 +271,11 @@ class Player():
 
 
     def draw(self) -> None:
-        """Drawing the player, and optionally drawing the attack_rect"""
+        """
+        Docstring for draw
+        
+        :param self: A function for drawing the player and attack image on the game surface.
+        """
         image_to_draw = self.master_image
         if self.is_hit:
             image_to_draw = self.hit_image
@@ -240,10 +287,9 @@ class Player():
 
 class Enemy(pygame.sprite.Sprite):
     """
-    Enemy Class.
-    No need for drawing as the Enemies are drawn
-    using a Pygame Sprite Group called enemies in
-    the Game class, defined in main.py.
+    Docstring for Enemy
+
+    :var logic: An enemy class that handles movement, health, and death.
     """
     def __init__(self, pos: tuple[int, int], type: str, game: Game) -> None:
         super().__init__()
@@ -276,7 +322,9 @@ class Enemy(pygame.sprite.Sprite):
 
     def die(self) -> None:
         """
-        Still do the hit frames, and immediately after they end, kill the enemy sprite for a smooth death.
+        Docstring for die
+        
+        :param self: Handles the enemy's death, including removing it from the game and updating the score.
         """
         if self.hit_timer == 0:
             self.kill()
@@ -289,8 +337,9 @@ class Enemy(pygame.sprite.Sprite):
     
     def update(self) -> None:
         """
-        Updating the enemy's position and killing it once it
-        goes off screen.
+        Docstring for update
+        
+        :param self: Updates the enemy's position, rotation, health, and checks if it goes off-screen.
         """
         # Enemy's accelaration starts slow, then gains speed till the speed cap
         dx: float = 0.0
